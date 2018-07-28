@@ -1,0 +1,32 @@
+.FormCard{
+    width: 50%;
+    margin: 0 auto;
+    margin-top: 5%;
+}
+
+.MuiFormControl-root-66{
+    margin-bottom: 10% !important
+}
+
+.Button_createAccount{
+    width: 50%;
+    margin: auto;
+}
+
+.errorMessage{
+    color: rgb(212, 16, 16);
+    text-align: center;
+    margin-top: 5%
+}
+
+@media screen and (max-width: 850px) {
+    .FormCard {
+        width: 70% !important ;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .FormCard {
+        width: 80% !important ;
+    }
+}
