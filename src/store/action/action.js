@@ -1,4 +1,3 @@
-import firebase from "firebase"
 import ActionTypes from "../constant/constant"
 
 
@@ -19,56 +18,63 @@ export const isRegisterAction = (data)=>{
     }
 }
 
-// export const currentUser = (data)=>{
-//     // console.log(data, "___________currentUser")    
-//     return dispatch => {       
-//         dispatch ({
-//             type:ActionTypes.CURRENT_USER,
-//             payload:data
-//         })
-//     }
-// }
+export const ParkingAction = (data)=>{
+    // console.log(data, "___________currentUser")    
+    return dispatch => {       
+        dispatch ({
+            type:ActionTypes.PARKING_LIST,
+            payload:data
+        })
+    }
+}
 
 
-// export const postData = (data, navigate)=>{
-//     return dispatch => {       
-//         dispatch ({
-//             type:ActionTypes.POST_DATA,
-//             payload:data 
-//         })
-//     }
-// }
+export const Parking_ID = (data)=>{
+    return dispatch => {       
+        dispatch ({
+            type:ActionTypes.PARKING_ID,
+            payload:data 
+        })
+    }
+}
 
-// export const postPath = (data)=>{
-//     // alert(data)
-//     return dispatch => {       
-//         dispatch ({
-//             type:ActionTypes.POST_PATH,
-//             payload:data 
-//         })
-//     }
-// }
-
-
-// export const profilrData = (data)=>{
-//     return dispatch => {       
-//         dispatch ({
-//             type:ActionTypes.PROFILE_DATA,
-//             payload:data
-//         })
-//     }
-// }
+export const slotsAction = (data)=>{
+    return dispatch => {       
+        dispatch ({
+            type:ActionTypes.SLOTS_,
+            payload:data 
+        })
+    }
+}
 
 
+export const selectedData = (data)=>{
+    return dispatch => {       
+        dispatch ({
+            type:ActionTypes.SELECTED_DATA,
+            payload:data
+        })
+    }
+}
 
-// export const commentAction = (data)=>{
-//     return dispatch => {       
-//         dispatch ({
-//             type:ActionTypes.COMMENT_DATA,
-//             payload:data
-//         })
-//     }
-// }
+
+
+export const mySlotsAction = (data)=>{
+    return dispatch => {       
+        dispatch ({
+            type:ActionTypes.MY_SLOTS,
+            payload:data
+        })
+    }
+}
+export const AreaNameAction = (data)=>{
+    return dispatch => {       
+        dispatch ({
+            type:ActionTypes.AREA_NAME,
+            payload:data
+        })
+    }
+}
 
 // export const commentNull = (data)=>{
 //     return dispatch => {       

@@ -3,7 +3,8 @@ import { Router, Route } from "react-router-dom"
 import {
     CreateAccount,
     LogIn,
-    Dashboard
+    Dashboard,
+    ViweBooking
 } from "../Components/index"
 import history from "../History"
 class Routers extends Component {
@@ -26,6 +27,7 @@ class Routers extends Component {
                         <Route exact path="/CreateAccount" component={CreateAccount} />
                         <Route  path="/logIn" component={LogIn} />
                         <Route  path="/Dashboard" component={Dashboard} />
+                        <Route  path="/ViweBooking" component={ViweBooking} />
                     </div>
                 </Router>
             </div>
