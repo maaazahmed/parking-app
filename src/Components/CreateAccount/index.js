@@ -17,6 +17,8 @@ import Button from '@material-ui/core/Button';
 import * as firebase from "firebase";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { connect } from "react-redux"
+import history from "../../History"
+
 import { 
   isLoaderAction,
   isRegisterAction
@@ -65,11 +67,12 @@ class CreateAccount extends Component {
 
 
 
-  CreateAccountHandler(setState){
+  CreateAccountHandler(){
    let user = {
      username : this.state.username,
      Email : this.state.Email,
      password : this.state.password,
+     accountType:"user"
    }
    this.props.isLoaderAction(true)
 
@@ -83,6 +86,8 @@ class CreateAccount extends Component {
               .then(() => {
                   this.props.isLoaderAction(false)
                   this.props.isRegisterAction('')
+                  history.push("/Dashboard")
+
     
               })
             })
@@ -190,7 +195,8 @@ class CreateAccount extends Component {
                 />
               </FormControl>
               <div style={{textAlign:"center"}} >
-              <Button disabled={(this.props.isLoader.isLoader)} onClick={this.CreateAccountHandler.bind(this)}
+              <Button disabled={(this.props.isLoader.isLoader)} 
+              onClick={this.CreateAccountHandler.bind(this)}
                   variant="contained" 
                    className="Button_createAccount" 
                     color="primary">
@@ -209,6 +215,14 @@ class CreateAccount extends Component {
               </div>:null}
             </CardContent>
           </Card>
+          <div 
+          className="Creat-account-button-container" >
+            <button
+             onClick={()=>{history.push("/login")}} 
+            className="Creat-account-button" >
+              Alredy an Account
+           </button>
+          </div>
         </div>
       </div>
     );

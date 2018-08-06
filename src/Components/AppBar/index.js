@@ -7,8 +7,17 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import history from "../../History"
-// ViweBooking
+import firebase from "firebase"
+import { connect } from "react-redux"
+import {
+    EmptyParkingList,
+    EmptySelectedSlots,
+    currentUserData,
+    ClearState
 
+} from "../../store/action/action"
+
+let database = firebase.database().ref('/')
 class Header extends Component {
     constructor() {
         super()
@@ -26,6 +35,20 @@ class Header extends Component {
     };
 
 
+    componentWillMount(){
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                database.child(`user/${user.uid}`).on("value", (snapshot) => {
+                    let user = snapshot.val()
+                    user.id = snapshot.key
+                    this.props.currentUserData(user)
+
+                })
+
+            }
+        });
+    }
+
 
     render() {
         const { anchorEl } = this.state;
@@ -33,7 +56,6 @@ class Header extends Component {
             <div>
                 <div >
                     <AppBar
-                        // className="AppBarClass"
                         style={{
                             position: "fixed",
                             boxShadow: "none",
@@ -46,7 +68,7 @@ class Header extends Component {
                             variant="dense">
                             <Typography variant="title"
                                 color="inherit">
-                                Dashboard
+                                {this.props.heading}
                            </Typography>
                             <div>
                                 <IconButton
@@ -65,22 +87,44 @@ class Header extends Component {
                                     open={Boolean(anchorEl)}
                                     onClose={this.handleMenuClose}>
                                     <MenuItem onClick={() => {
-                                        history.push("/Dashboard")
+                                        this.props.EmptyParkingList()
                                         this.handleMenuClose()
-                                    }}>Book Parking</MenuItem>
+                                        history.push("/Dashboard")
+                                    }}>Book Parking
+                                    </MenuItem>
+                                  
                                     <MenuItem
-                                        onClick={()=>{
-                                            history.push("/ViweBooking")
+                                        onClick={() => {
+                                            this.props.EmptyParkingList()
                                             this.handleMenuClose()
-                                        }
-                                        }>
-                                        View booking</MenuItem>
+                                            this.props.EmptySelectedSlots()
+                                            history.push("/ViweBooking")
+                                        }}>View booking</MenuItem>
+                                  {(this.props.user.currentUser.accountType === "admin")?
                                     <MenuItem
-                                        onClick={this.handleMenuClose}>Feedback</MenuItem>
+                                        onClick={() => {
+                                            history.push("/AllParkins")}}>
+                                        All Bookings
+                                    </MenuItem>
+                                    :null}
+
+                                     {(this.props.user.currentUser.accountType === "admin")?
+                                    <MenuItem
+                                        onClick={() => {
+                                            history.push("/Users")}}>
+                                        All Users
+                                    </MenuItem>
+                                    :null}
+
+
+
+
+
                                     <MenuItem
                                         onClick={() => {
                                             history.push("login");
                                             localStorage.removeItem("token")
+                                            this.props.ClearState()
                                         }}>Logout</MenuItem>
                                 </Menu>
                             </div>
@@ -92,4 +136,36 @@ class Header extends Component {
     }
 }
 
-export default Header;
+
+const mapStateToProp = (state) => {
+    return ({
+        ParkingList: state.root,
+        parkinID: state.root,
+        allSlots: state.root,
+        selected_Data: state.root,
+        areaName: state.root,
+        user: state.root,
+    });
+};
+const mapDispatchToProp = (dispatch) => {
+    return {
+        EmptyParkingList: (data) => {
+            dispatch(EmptyParkingList(data))
+        },
+        EmptySelectedSlots: (data) => {
+            dispatch(EmptySelectedSlots(data))
+        },
+        currentUserData:(data) => {
+            dispatch(currentUserData(data))
+        },
+        ClearState:(data) => {
+            dispatch(ClearState(data))
+        },
+
+
+    };
+};
+
+
+export default connect(mapStateToProp, mapDispatchToProp)(Header)
+

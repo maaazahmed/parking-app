@@ -4,12 +4,27 @@ const INITIAL_STATE = {
     isLoader: false,
     areaName: "",
     parkinID: "",
+    allBooking: [],
     slots: [],
     mySlots: [],
     activeArr: [],
+    currentUser: {},
     parkingList: [],
     sselectedData: {},
     isRegisterError: "",
+    userLst: [],
+    parkingTime: [
+        // {
+        //     active:false,
+        //     sloteNumber: " slots[index].sloteNumber",
+        //     areaName: " slots[index].areaName",
+        //     parkinID: "slots[index].parkinID",
+        //     nodeNumber: "index",
+        //     endTime: "slots[index].endTime",
+        //     startTime: "slots[index].startTime",
+        //     currentUserID: "slots[index].currentUserID",
+        // }
+    ]
 }
 
 export default (state = INITIAL_STATE, action) => {
@@ -51,12 +66,59 @@ export default (state = INITIAL_STATE, action) => {
                 ...state,
                 mySlots: [...state.mySlots, action.payload]
             })
+
+        case ActionTypes.DELETE_SLOT:
+            return ({
+                ...state,
+                mySlots: [...action.payload]
+            })
+
+
         case ActionTypes.AREA_NAME:
             return ({
                 ...state,
                 areaName: action.payload
             })
+        case ActionTypes.EMPTY_PARKING_LIST:
+            return ({
+                ...state,
+                mySlots: []
+            })
 
+        case ActionTypes.EMPTY_PARKING_SELECT:
+            return ({
+                ...state,
+                parkingList: []
+            })
+        case ActionTypes.CURRENT_USER:
+            return ({
+                ...state,
+                currentUser: action.payload
+            })
+
+        case ActionTypes.ALL_BOOKING:
+            return ({
+                ...state,
+                allBooking: [...state.allBooking, action.payload]
+            })
+
+        case ActionTypes.USER_LIST:
+            return ({
+                ...state,
+                userLst: [...state.userLst, action.payload]
+            })
+
+
+        case ActionTypes.EMPTY_STATE:
+            return ({
+                state: []
+            })
+
+        case ActionTypes.PARKING_TIME:
+            return ({
+                ...state,
+                parkingTime: [...state.parkingTime, action.payload]
+            })
         default:
             return state;
     }

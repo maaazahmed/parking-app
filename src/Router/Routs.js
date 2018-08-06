@@ -4,21 +4,14 @@ import {
     CreateAccount,
     LogIn,
     Dashboard,
-    ViweBooking
+    ViweBooking,
+    AdminComponent,
+    AllParkins,
+    Users
+
 } from "../Components/index"
 import history from "../History"
 class Routers extends Component {
-    // componentDidMount() {
-    //     let checkAouth = localStorage.getItem("token")
-    //     console.log(checkAouth)
-    //     if (checkAouth === null) {
-    //         history.push("/logIn")
-    //     }
-    //     else {
-    //         history.push("/Dashboard")
-    //     }
-
-    // }
     render() {
         return (
             <div>
@@ -28,6 +21,9 @@ class Routers extends Component {
                         <Route  path="/logIn" component={LogIn} />
                         <Route  path="/Dashboard" component={Dashboard} />
                         <Route  path="/ViweBooking" component={ViweBooking} />
+                        <Route  path="/Admin" component={AdminComponent} />
+                        <Route  path="/AllParkins" component={AllParkins} />
+                        <Route  path="/Users" component={Users} />
                     </div>
                 </Router>
             </div>

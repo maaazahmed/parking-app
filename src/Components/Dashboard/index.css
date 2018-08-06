@@ -149,6 +149,7 @@
     color: #3f51b5;
     font-weight: bold;
     cursor: pointer;
+    font-size: 90%;
     -webkit-transition: background-color 2s,color .5s, -webkit-transform 2s;
     transition: background-color .5s, transform 2s, color .5s;
 }
@@ -201,5 +202,3 @@
     font-style: italic;
     background-color: #f2f2f2
 }
-
-

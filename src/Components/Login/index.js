@@ -36,6 +36,7 @@ class LogIn extends Component {
       errorMsg:""
     };
   }
+  
   handleChange(ev) {
     this.setState({ 
       [ev.target.name]: ev.target.value
@@ -65,7 +66,6 @@ setTimeout(()=>{
    if( user.Email !== "" && user.password !== ""){
     firebase.auth().signInWithEmailAndPassword(user.Email, user.password)
     .then((success) => {
-      // database.child("user/" + success.uid).once("value", (snapshot) => {
            let firstPass = user.password.slice(3).toLowerCase()
            let secondPass = user.password.slice(1,4).toUpperCase()
            let FirstEmail =user.Email.slice(0,3).toLowerCase()
@@ -81,7 +81,6 @@ setTimeout(()=>{
         this.props.isLoaderAction(false)
         this.props.isRegisterAction('')
         history.push("/Dashboard")
-      // })
     })
     .catch((error) => {
                 var errorMessage = error.message;
@@ -98,12 +97,12 @@ setTimeout(()=>{
 
   render() {
     return (
-      <div className="App">
+      <div>
         <AppBar position="static">
-          <Toolbar variant="dense">
+          <Toolbar  variant="dense">
             <Typography variant="title"
               color="inherit">
-              Sing up
+              Sing in
             </Typography>
           </Toolbar>
         </AppBar>
@@ -182,6 +181,11 @@ setTimeout(()=>{
               </div>:null}
             </CardContent>
           </Card>
+          <div className="Creat-account-button-container" >
+            <button onClick={()=>{history.push("/CreateAccount")}} className="Creat-account-button" >
+              Creat an Account
+           </button>
+          </div>
         </div>
       </div>
     );

@@ -28,14 +28,10 @@ import {
     Parking_ID,
     slotsAction,
     selectedData,
-    AreaNameAction
+    AreaNameAction,
+    currentUserData,
+    ParkingTime
 } from "../../store/action/action"
-
-
-
-
-
-
 
 
 
@@ -53,31 +49,44 @@ class Dashboard extends Component {
             startTime: "",
             endTime: "",
             localSlot: {},
-            currentTime:new Date().getTime()
         }
     }
     componentWillMount() {
-        let checkAouth = localStorage.getItem("token")
-        if (checkAouth == null) {
-            history.push("/logIn");
-        }
+        // let checkAouth = localStorage.getItem("token")
+        // if (checkAouth == null) {
+        //     history.push("/logIn");
+        // }
+        firebase.auth().onAuthStateChanged((user) => {
+            if (user) {
+                // console.log(user.uid)
+                this.setState({ currentUserID: user.uid })
+                database.child(`user/${user.uid}`).on("value", (snapshot) => {
+                    let user = snapshot.val()
+                    user.id = snapshot.key
+                    // this.props.currentUserData(user)
+                })
+            }
+        });
 
 
+        // currentUserData
     }
     componentDidMount() {
         database.child("Parkings").on("child_added", (snapshot) => {
             let obj = snapshot.val();
             obj.id = snapshot.key;
             this.props.ParkingAction(obj)
+            // console.log(obj)
 
         })
-        // let parkinID = this.props.parkinID.parkinID;
-        // let slots = this.props.allSlots.slots;
-        // let newData = this.props.selected_Data.sselectedData.data;
-        // let index = this.props.selected_Data.sselectedData.index;
-        // let currentTime = new Date().getTime();
-        // console.log(parkinID)
 
+        database.child("parking-time").on("child_added", (snapshot) => {
+            let obj_2 = snapshot.val();
+            obj_2.id = snapshot.key;
+            this.props.ParkingTime(obj_2)
+            // console.log(obj_2)
+
+        })
     }
     handleClickOpen = () => {
         this.setState({ open: true });
@@ -86,8 +95,6 @@ class Dashboard extends Component {
     handleClose = () => {
         this.setState({ open: false });
     };
-
-
 
     handleOn_Change(ev) {
         this.setState({
@@ -105,43 +112,59 @@ class Dashboard extends Component {
 
 
     bookingHandler(data) {
+        let currentUserID = firebase.auth().currentUser.uid;
         this.setState({ num: data.numberOfSlots })
         this.props.Parking_ID(data.id)
         this.props.slotsAction(data.bookingArr)
         this.props.AreaNameAction(data.parkingAreaVal)
-        console.log(data.bookingArr)
-        data.bookingArr.map((val)=>{
-            // console.log(val.index)
-            if(val.endTime > this.state.currentTime){
-                let slotes = data.bookingArr;
-                slotes[val.index].active = false;
-                console.log(val.parkinID);
-                database.child(`Parkings/${val.parkinID}/bookingArr/`).set(slotes)
 
+        this.props.Parking_Time.parkingTime.map((value) => {
+            // console.log(value.id, '////')
+            if (value.startTime <= new Date().getTime() && value.endTime >= new Date().getTime() && data.id === value.parkinID) {
+                let slotes = data.bookingArr;
+                slotes[value.nodeNumber].active = true;
+                slotes[value.nodeNumber].endTime = value.endTime;
+                slotes[value.nodeNumber].startTime = value.startTime;
+                slotes[value.nodeNumber].areaName = value.areaName;
+                slotes[value.nodeNumber].currentUserID = value.currentUserID;
+                slotes[value.nodeNumber].index = value.nodeNumber;
+                slotes[value.nodeNumber].parkinID = value.parkinID;
+                slotes[value.nodeNumber].sloteNumber = value.sloteNumber;
+                database.child(`Parkings/${value.parkinID}/bookingArr/`).set(slotes)
+            }
+            else {
+                let slotes = data.bookingArr;
+                slotes[value.nodeNumber].active = false;
+                slotes[value.nodeNumber].endTime = value.endTime;
+                slotes[value.nodeNumber].startTime = value.startTime;
+                slotes[value.nodeNumber].areaName = value.areaName;
+                slotes[value.nodeNumber].currentUserID = value.currentUserID;
+                slotes[value.nodeNumber].index = value.nodeNumber;
+                slotes[value.nodeNumber].parkinID = value.parkinID;
+                slotes[value.nodeNumber].sloteNumber = value.sloteNumber;
+                database.child(`Parkings/${value.parkinID}/bookingArr/`).set(slotes)
+                // if(data.id == value.parkinID){
+                //     database.child(`parking-time/${value.id}/`).remove()
+                // }
             }
         })
-
-
-
-        // this.props.selected_Data.mySlots.map((val) => {
-        //     val.bookingArr.map((bookinViewVall) => {
-        //       let slotes = val.bookingArr
-        //       slotes[bookinViewVall.index].active = false;
-        //       console.log(bookinViewVall.parkinID === val.id )
-        //       if (bookinViewVall.endTime < this.state.currentTime
-        //          && bookinViewVall.parkinID === val.id) {
-        //         database.child(`Parkings/${bookinViewVall.parkinID}/bookingArr`).set(slotes)
-        //       }
-        //     })
-        //   })
+        // data.bookingArr.map((val) => {
+        //     let currentTime = new Date().getTime()
+        //     if (val.endTime < currentTime) {
+        //         let slotes = data.bookingArr;
+        //         slotes[val.index].active = false;
+        //         database.child(`Parkings/${val.parkinID}/bookingArr/`).set(slotes)
+        //     }
+        // })
     }
 
     bookingCuntineu() {
         let startTime = new Date(this.state.startTime).getTime()
         let endTime = new Date(this.state.endTime).getTime()
         // console.log(this.props.parkinID.parkinID)
+        // console.log(this.props.allSlots.slots)
         if (endTime <= startTime) {
-            alert("")
+            alert("Please select correct time")
         }
         else {
             let currentUserID = firebase.auth().currentUser.uid;
@@ -152,14 +175,87 @@ class Dashboard extends Component {
             let parkinID = this.props.parkinID.parkinID;
             let slots = this.props.allSlots.slots;
             slots[index].active = true;
-            // slots[index].startTime = startTime;
             slots[index].endTime = endTime;
             slots[index].currentUserID = currentUserID;
             slots[index].sloteNumber = index + 1;
-            slots[index].areaName = this.props.areaName.areaName,
-                slots[index].parkinID = this.props.parkinID.parkinID
-            slots[index].startTime = currentTime
-            database.child(`Parkings/${parkinID}/bookingArr`).set(slots)
+            slots[index].areaName = this.props.areaName.areaName
+            slots[index].parkinID = this.props.parkinID.parkinID
+            slots[index].startTime = startTime;
+            // database.child(`Parkings/${parkinID}/bookingArr`).set(slots)
+
+            // this.props.Parking_Time.parkingTime.map((value) => {
+            // if (value.startTime <= startTime && value.endTime >= endTime && value.parkinID === parkinID) {
+            //     alert("This slot is already selected")
+            // }
+            // else {
+            //     let slotObj = {
+            //         sloteNumber: slots[index].sloteNumber,
+            //         areaName: slots[index].areaName,
+            //         parkinID: slots[index].parkinID,
+            //         nodeNumber: index,
+            //         endTime: slots[index].endTime,
+            //         startTime: slots[index].startTime,
+            //         currentUserID: slots[index].currentUserID,
+            //     }
+            //     console.log(value.startTime <= startTime && value.endTime >= endTime && value.parkinID === parkinID, "=============")
+            //     // if(value.startTime <= startTime){
+            //     database.child(`parking-time`).push(slotObj)
+            //     // }
+            //     // database.child(`selected-parking/${currentUserID}`).push(slotObj)
+            // }
+            // })
+            console.log(index)
+
+
+            var i = 0;
+            do {
+                if (this.props.Parking_Time.parkingTime[i] === undefined) {
+                    let slotObj = {
+                        sloteNumber: slots[index].sloteNumber,
+                        areaName: slots[index].areaName,
+                        parkinID: slots[index].parkinID,
+                        nodeNumber: index,
+                        endTime: slots[index].endTime,
+                        startTime: slots[index].startTime,
+                        currentUserID: slots[index].currentUserID,
+                    }
+                    database.child(`parking-time`).push(slotObj)
+                    break;
+
+                }
+
+                else if (this.props.Parking_Time.parkingTime[i].startTime <= startTime
+                    && this.props.Parking_Time.parkingTime[i].endTime >= endTime
+                    && this.props.Parking_Time.parkingTime[i].parkinID === parkinID
+                    && this.props.Parking_Time.parkingTime[i].nodeNumber === index) {
+                    // console.log(this.props.Parking_Time.parkingTime[i], "======1")
+                    alert("This slot is already selected")
+                    break;
+                }
+
+                else if (this.props.Parking_Time.parkingTime[i].parkinID === parkinID
+                    && this.props.Parking_Time.parkingTime[i].nodeNumber !== index) {
+                    let slotObj = {
+                        sloteNumber: slots[index].sloteNumber,
+                        areaName: slots[index].areaName,
+                        parkinID: slots[index].parkinID,
+                        nodeNumber: index,
+                        endTime: slots[index].endTime,
+                        startTime: slots[index].startTime,
+                        currentUserID: slots[index].currentUserID,
+                    }
+                    database.child(`parking-time`).push(slotObj)
+                    console.log(this.props.Parking_Time.parkingTime.length)
+                    break;
+                    // database.child(`selected-parking/${currentUserID}`).push(slotObj)
+                }
+                console.log(index, "==", this.props.Parking_Time.parkingTime[i].nodeNumber)
+
+                i++;
+                break;
+            } while (i <= this.props.Parking_Time.parkingTime.length);
+
+
             this.setState({ open2: false });
         }
     }
@@ -167,11 +263,6 @@ class Dashboard extends Component {
 
 
     selectSlot(index, data) {
-        // this.setState({localSlot:data})
-        // let parkinID = this.props.parkinID.parkinID;
-        // let slots = this.props.allSlots.slots;
-        // slots[index].active = true;
-        // database.child(`Parkings/${parkinID}/bookingArr`).set(slots);
         this.setState({ open2: true });
         this.props.selectedData({ index, data })
     }
@@ -202,10 +293,10 @@ class Dashboard extends Component {
 
     render() {
         let parkingList = this.props.ParkingList.parkingList;
-       
+        // console.log(parkingList)
         return (
             <div className="App">
-                <Header />
+                <Header heading="Dashboard" />
                 <div>
                     <Dialog
                         className="DialogBox"
@@ -352,19 +443,19 @@ class Dashboard extends Component {
                                 <div className="force-overflow">
                                     <div className="slote_CardContent" >
                                         {this.props.allSlots.slots.map((value, index) => {
+                                            // console.log(value)
                                             return (
                                                 <Card
                                                     key={index}
-                                                    onClick={(value.active) ? null
-                                                        : this.selectSlot.bind(this, index, value)}
+                                                    onClick={(value.active && value.startTime < new Date().getTime()) ? null : this.selectSlot.bind(this, index, value)}
                                                     className="slots_button"
-                                                    style={(value.active) ?
+                                                    style={(value.active && value.startTime < new Date().getTime()) ?
                                                         {
                                                             backgroundColor: "#3f51b5",
                                                             cursor: "not-allowed"
                                                         } : null}>
                                                     <CardContent>
-                                                        {(value.active) ?
+                                                        {(value.active && value.startTime < new Date().getTime()) ?
                                                             <div>
                                                                 Selected
                                                         </div>
@@ -383,15 +474,16 @@ class Dashboard extends Component {
                                     Nothing to show
                                 </div>
                             </div>}
-
                         <div className="AddButton">
-                            <Button
-                                onClick={this.handleClickOpen}
-                                variant="fab"
-                                color="primary"
-                                aria-label="Add" >
-                                <AddIcon />
-                            </Button>
+                            {(this.props.user.currentUser.accountType === "admin") ?
+                                <Button
+                                    onClick={this.handleClickOpen}
+                                    variant="fab"
+                                    color="primary"
+                                    aria-label="Add" >
+                                    <AddIcon />
+                                </Button>
+                                : null}
                         </div>
                     </div>
                 </div>
@@ -408,7 +500,9 @@ const mapStateToProp = (state) => {
         parkinID: state.root,
         allSlots: state.root,
         selected_Data: state.root,
-        areaName: state.root
+        areaName: state.root,
+        user: state.root,
+        Parking_Time: state.root
     });
 };
 const mapDispatchToProp = (dispatch) => {
@@ -427,6 +521,12 @@ const mapDispatchToProp = (dispatch) => {
         },
         AreaNameAction: (data) => {
             dispatch(AreaNameAction(data))
+        },
+        currentUserData: (data) => {
+            dispatch(currentUserData(data))
+        },
+        ParkingTime: (data) => {
+            dispatch(ParkingTime(data))
         },
     };
 };
